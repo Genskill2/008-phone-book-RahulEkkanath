@@ -18,7 +18,6 @@ int search(FILE *,char *);
 void list(FILE *);
 int delete(FILE *, char *);
 
-
 /* Utility functions  */
 FILE * open_db_file(); /* Opens the database file. Prints error and
                           quits if it's not available */
@@ -106,12 +105,13 @@ FILE *open_db_file() {
 }
   
 void free_entries(entry *p) {
+  /* TBD */
   free(p);
   while(p->next!=NULL)
   {
     free(p->next);
     p=p->next;
-  }  /* TBD */
+  }  
 }
 
 void print_usage(char *message, char *progname) {
@@ -148,20 +148,17 @@ entry *load_entries(FILE *fp) {
   entry *tmp = NULL;
   /* Description of %20[^,\n]
      % is the start of the specifier (like %s, %i etc.)
-
      20 is the maximum number of characters that this will take. We
         know that names and phone numbers will be 20 bytes maximum so
         we limit it to that. %20s will read in 20 character strings
         (including the , to separate the name and phone number. That's
         why we use
-
     [^,\n] Square brackets are used to indicate a set of allowed
            characters [abc] means only a, b, or c. With the ^, it's
            used to specify a set of disallowed characters. So [^abc]
            means any character *except* a, b, or c. [^,] means any
            character except a , [^,\n] means any character except a
            comma(,) or a newline(\n).
-
     %20[^,\n] will match a string of characters with a maximum length
      of 20 characters that doesn't have a comma(,) or a newline(\n).
   */        
@@ -195,14 +192,14 @@ void add(char *name, char *phone) {
 void list(FILE *db_file) {
   entry *p = load_entries(db_file);
   entry *base = p;
-  int count=0;
+  int cnt=0;
   while (p!=NULL) {
     printf("%-20s : %10s\n", p->name, p->phone);
     p=p->next;
-    count++;
+    cnt++;
   }
+  printf("Total entries :  %d\n",cnt);
   /* TBD print total count */
-  printf("Total entries : %d\n",count);
   free_entries(base);
 }
 
@@ -215,25 +212,7 @@ int delete(FILE *db_file, char *name) {
   int deleted = 0;
   while (p!=NULL) {
     if (strcmp(p->name, name) == 0) {
-      if(prev!=NULL)
-        {
-          del=p;
-          prev->next=del->next;
-          free(del);
-          deleted++;
-          
-        }
-        else
-        {
-          del=base;
-          base=base->next;
-          free(del);
-          deleted++;
-        }
-    }
-    prev=p;
-    p=p->next;
-  }/* Matching node found. Delete it from the linked list.
+      /* Matching node found. Delete it from the linked list.
          Deletion from a linked list like this
    
              p0 -> p1 -> p2
@@ -243,8 +222,25 @@ int delete(FILE *db_file, char *name) {
          
          If the node to be deleted is p0, it's a special case. 
       */
-
+        if(prev==NULL)
+        {
+          del=base;
+          base=base->next;
+          free(del);
+          deleted=1;
+        }
+        else
+        {
+          del=p;
+          prev->next=del->next;
+          free(del);
+          deleted=1;
+        }
       /* TBD */
+    }
+    prev=p;
+    p=p->next;
+  }
   write_all_entries(base);
   free_entries(base);
   return deleted;
@@ -271,4 +267,3 @@ int search(FILE *db_file,char *name)
   free_entries(base);
   return 1;
 }
-
