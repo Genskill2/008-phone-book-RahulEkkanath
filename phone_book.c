@@ -271,6 +271,3 @@ int search(FILE *db_file,char *name)
   return 1;
 }
 
-
-
-
