@@ -105,7 +105,6 @@ FILE *open_db_file() {
 }
   
 void free_entries(entry *p) {
-  /* TBD */
   free(p);
   while(p->next!=NULL)
   {
@@ -192,13 +191,13 @@ void add(char *name, char *phone) {
 void list(FILE *db_file) {
   entry *p = load_entries(db_file);
   entry *base = p;
-  int cnt=0;
+  int count=0;
   while (p!=NULL) {
     printf("%-20s : %10s\n", p->name, p->phone);
     p=p->next;
-    cnt++;
+    count++;
   }
-  printf("Total entries :  %d\n",cnt);
+  printf("Total entries :  %d\n",count);
   /* TBD print total count */
   free_entries(base);
 }
@@ -222,17 +221,18 @@ int delete(FILE *db_file, char *name) {
          
          If the node to be deleted is p0, it's a special case. 
       */
-        if(prev==NULL)
-        {
-          del=base;
-          base=base->next;
-          free(del);
-          deleted=1;
-        }
-        else
+        if(prev!=NULL)
         {
           del=p;
           prev->next=del->next;
+          free(del);
+          deleted=1;
+          
+        }
+        else
+        {
+          del=base;
+          base=base->next;
           free(del);
           deleted=1;
         }
@@ -250,17 +250,17 @@ int search(FILE *db_file,char *name)
 {
   entry *p = load_entries(db_file);
   entry *base=p;
-  int flag=0;
+  int f=0;
   while(p!=NULL)
   {
     if(strcmp(p->name,name)==0)
     {
       printf("%s\n", p->phone);
-      flag=1;
+      f=1;
     }
     p=p->next;
   }
-  if(flag!=1)
+  if(f!=1)
   {
     return 0;
   }
